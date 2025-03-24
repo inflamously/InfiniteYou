@@ -152,6 +152,8 @@ class InfUFluxPipeline:
                 controlnet=self.infusenet,
                 torch_dtype=torch.bfloat16,
             )
+            pipe.enable_attention_slicing()
+            pipe.enable_model_cpu_offload()
         except:
             try:
                 pipe = FluxInfuseNetPipeline.from_single_file(
@@ -167,7 +169,7 @@ class InfUFluxPipeline:
                       'After that, run the code again. If you have downloaded it, please use `base_model_path` to specify the correct path.')
                 print('\nIf you are using other models, please download them to a local directory and use `base_model_path` to specify the correct path.')
                 exit()
-        pipe.to('cuda', torch.bfloat16)
+        #pipe.to('cuda', torch.bfloat16)
         self.pipe = pipe
 
         # Load image proj model

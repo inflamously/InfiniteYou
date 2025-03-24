@@ -12,14 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
+import os
+import sys
 import gradio as gr
 import pillow_avif
 import torch
-from huggingface_hub import snapshot_download
 from pillow_heif import register_heif_opener
 
 from pipelines.pipeline_infu_flux import InfUFluxPipeline
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--base_model_path', default='black-forest-labs/FLUX.1-dev')
+args = parser.parse_args()
 
 # Register HEIF support for Pillow
 register_heif_opener()
@@ -39,22 +44,6 @@ loaded_pipeline_config = {
     "enable_realism": False,
     "enable_anti_blur": False,
 }
-
-
-def download_models():
-    snapshot_download(repo_id='ByteDance/InfiniteYou', local_dir='./models/InfiniteYou', local_dir_use_symlinks=False)
-    try:
-        snapshot_download(repo_id='black-forest-labs/FLUX.1-dev', local_dir='./models/FLUX.1-dev', local_dir_use_symlinks=False)
-    except Exception as e:
-        print(e)
-        print('\nYou are downloading `black-forest-labs/FLUX.1-dev` to `./models/FLUX.1-dev` but failed. '
-              'Please accept the agreement and obtain access at https://huggingface.co/black-forest-labs/FLUX.1-dev. '
-              'Then, use `huggingface-cli login` and your access tokens at https://huggingface.co/settings/tokens to authenticate. '
-              'After that, run the code again.')
-        print('\nYou can also download it manually from HuggingFace and put it in `./models/InfiniteYou`, '
-              'or you can modify `base_model_path` in `app.py` to specify the correct path.')
-        exit()
-
 
 def prepare_pipeline(model_version, enable_realism, enable_anti_blur):
     global pipeline
@@ -76,9 +65,10 @@ def prepare_pipeline(model_version, enable_realism, enable_anti_blur):
 
         model_path = f'./models/InfiniteYou/infu_flux_v1.0/{model_version}'
         print(f'loading model from {model_path}')
+        print(f'loading flux model from {args.base_model_path}')
 
         pipeline = InfUFluxPipeline(
-            base_model_path='./models/FLUX.1-dev',
+            base_model_path=args.base_model_path,
             infu_model_path=model_path,
             insightface_root_path='./models/InfiniteYou/supports/insightface',
             image_proj_num_tokens=8,
@@ -222,14 +212,6 @@ with gr.Blocks() as demo:
                 """
             )
 
-    gr.Examples(
-        sample_list,
-        inputs=[ui_id_image, ui_control_image, ui_prompt_text, ui_seed, ui_enable_realism, ui_enable_anti_blur, ui_model_version],
-        outputs=[image_output],
-        fn=generate_examples,
-        cache_examples=True,
-    )
-
     ui_btn_generate.click(
         generate_image, 
         inputs=[
@@ -285,10 +267,8 @@ with gr.Blocks() as demo:
         """
     )
 
-download_models()
-
 prepare_pipeline(model_version=ModelVersion.DEFAULT_VERSION, enable_realism=ENABLE_REALISM_DEFAULT, enable_anti_blur=ENABLE_ANTI_BLUR_DEFAULT)
 
 demo.queue()
-demo.launch(server_name='0.0.0.0')  # IPv4
+demo.launch(server_name='127.0.0.1')  # IPv4
 # demo.launch(server_name='[::]')  # IPv6
