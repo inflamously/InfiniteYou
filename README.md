@@ -1,3 +1,12 @@
+## Changes
+
+* Modified to run on a 4090 using offloading and flux.1-lite-8B
+* Add --base_model_path "<LOCAL_CHECKPOINT>" when running app.py
+* Add bitsandbytes for loading flux via 8bit
+* Speed up from 1 Minute to like 8 seconds while maintaining 24GB VRAM
+
+---
+
 <div align="center">
 
 ## InfiniteYou: Flexible Photo Recrafting While Preserving Your Identity

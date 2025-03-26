@@ -24,6 +24,7 @@ from pipelines.pipeline_infu_flux import InfUFluxPipeline
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--base_model_path', default='black-forest-labs/FLUX.1-dev')
+parser.add_argument('--clip_encoder_path', default=None)
 args = parser.parse_args()
 
 # Register HEIF support for Pillow
@@ -132,17 +133,6 @@ def generate_image(
 
 def generate_examples(id_image, control_image, prompt_text, seed, enable_realism, enable_anti_blur, model_version):
     return generate_image(id_image, control_image, prompt_text, seed, 864, 1152, 3.5, 30, 1.0, 0.0, 1.0, enable_realism, enable_anti_blur, model_version)
-
-
-sample_list = [
-    ['./assets/examples/yann-lecun_resize.jpg', None, 'A sophisticated gentleman exuding confidence. He is dressed in a 1990s brown plaid jacket with a high collar, paired with a dark grey turtleneck. His trousers are tailored and charcoal in color, complemented by a sleek leather belt. The background showcases an elegant library with bookshelves, a marble fireplace, and warm lighting, creating a refined and cozy atmosphere. His relaxed posture and casual hand-in-pocket stance add to his composed and stylish demeanor', 666, False, False, 'aes_stage2'],
-    ['./assets/examples/yann-lecun_resize.jpg', './assets/examples/man_pose.jpg', 'A man, portrait, cinematic', 42, True, False, 'aes_stage2'],
-    ['./assets/examples/yann-lecun_resize.jpg', './assets/examples/yann-lecun_resize.jpg', 'A man, portrait, cinematic', 12345, False, False, 'sim_stage1'],
-    ['./assets/examples/yangmi.jpg', None, 'A woman, portrait, cinematic', 1621695706, False, False, 'sim_stage1'],
-    ['./assets/examples/yangmi.jpg', None, 'A young woman holding a sign with the text "InfiniteYou", "Infinite" in black and "You" in red, pure background', 3724009366, False, False, 'aes_stage2'],
-    ['./assets/examples/yangmi.jpg', None, 'A photo of an elegant Javanese bride in traditional attire, with long hair styled into intricate a braid made of many fresh flowers, wearing a delicate headdress made from sequins and beads. She\'s holding flowers, light smiling at the camera, against a backdrop adorned with orchid blooms. The scene captures her grace as she stands amidst soft pastel colors, adding to its dreamy atmosphere', 42, True, False, 'aes_stage2'],
-    ['./assets/examples/yangmi.jpg', None, 'A photo of an elegant Javanese bride in traditional attire, with long hair styled into intricate a braid made of many fresh flowers, wearing a delicate headdress made from sequins and beads. She\'s holding flowers, light smiling at the camera, against a backdrop adorned with orchid blooms. The scene captures her grace as she stands amidst soft pastel colors, adding to its dreamy atmosphere', 42, False, False, 'sim_stage1'],
-]
 
 with gr.Blocks() as demo:
     session_state = gr.State({})
